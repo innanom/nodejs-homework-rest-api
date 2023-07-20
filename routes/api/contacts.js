@@ -1,4 +1,5 @@
-const express = require('express')
+import express from "express";
+// const express = require('express')
 
 const router = express.Router()
 
@@ -21,5 +22,6 @@ router.delete('/:contactId', async (req, res, next) => {
 router.put('/:contactId', async (req, res, next) => {
   res.json({ message: 'template message' })
 })
-
-module.exports = router
+ 
+// module.exports = router
+export default router;
