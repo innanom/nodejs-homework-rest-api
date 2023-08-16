@@ -1,6 +1,9 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import gravatar from "gravatar";
+import fs from "fs/promises";
+import path from "path";
+import Jimp from "jimp";
 import "dotenv/config";
 import User from "../../models/user.js";
 import { HttpError } from "../../helpers/index.js";
@@ -66,10 +69,30 @@ const signout = async (req, res) => {
     });
 };
 
-const avatarPath = path.resolve("public", "avatars" )
-const updateAvatar = async (req, res) => {
-    const { path: oldPath, filename } = req.file;
 
+const avatarPath = path.resolve("public", "avatars");
+
+const updateAvatar = async (req, res) => {
+    const { _id } = req.user;
+    const {path: oldPath, filename} = req.file;
+    const newPath = path.join(avatarPath, filename);
+    
+    try {
+        const avatar = await Jimp.read(newPath);
+        avatar.resize(250, 250).write(newPath);
+    }
+    catch (error) {
+        console.error(error);
+    }
+    await fs.rename(oldPath, newPath);
+    
+    const avatarUrl = path.join("avatars", filename);
+    
+     await User.findByIdAndUpdate(_id, { avatarUrl });
+   
+    res.json({
+        avatarUrl,
+    });
 }
 
 export default {
